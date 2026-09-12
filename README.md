@@ -1,4 +1,4 @@
-# Portfólio de Edição — Direct Response
+# Gustavo — Portfólio de Edição VSL
 
 Site estático (HTML + CSS + JS puro, sem build) do portfólio de edição de VSL.
 
@@ -45,13 +45,12 @@ têm a cor de destaque embutida no pixel — foram convertidas para azul por
 deslocamento de matiz, não por CSS. Se a paleta mudar de novo, essas três
 imagens precisam ser regeradas.
 
-## Pendências antes de publicar
+## Notas
 
-- **Mídia e VSLs são de placeholder.** Os `.mp4`, os posters e os embeds VTurb
-  vieram da referência de layout e não são trabalhos do dono deste portfólio.
-  Substituir por mídia própria antes de divulgar o site.
-- **Players VTurb** apontam para uma conta de terceiro
+- **Mídia é autorizada.** Vídeos, posters e embeds VTurb são trabalhos do Gustavo
+  e do Jean Pontes, usados com autorização.
+- **Players VTurb** são servidos pela conta `078ca594-…`
   (`scripts/site.js` → `VTURB_ACCOUNT`, mais os `data-player-id` no `index.html`).
-  Trocar pela conta própria.
-- **Textos, cases e números** ainda são os da referência. Reescrever.
-- **WhatsApp**: o link `wa.me` no `index.html` precisa apontar para o número certo.
+  Se um player for removido ou renomeado lá, a VSL correspondente para de carregar aqui.
+- **Textos, cases e números** vieram da referência de layout — revisar antes de divulgar.
+- **WhatsApp**: conferir se o link `wa.me` no `index.html` aponta para o número certo.
