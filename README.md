@@ -53,4 +53,6 @@ imagens precisam ser regeradas.
   (`scripts/site.js` → `VTURB_ACCOUNT`, mais os `data-player-id` no `index.html`).
   Se um player for removido ou renomeado lá, a VSL correspondente para de carregar aqui.
 - **Textos, cases e números** vieram da referência de layout — revisar antes de divulgar.
-- **WhatsApp**: conferir se o link `wa.me` no `index.html` aponta para o número certo.
+- **WhatsApp**: os 5 botões apontam para `wa.me/5531997449556` (+55 31 99744-9556) com
+  mensagem pré-preenchida. Para trocar número ou texto, é um find-and-replace do href
+  no `index.html` — o texto vai url-encoded no parâmetro `?text=`.
