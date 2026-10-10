@@ -1,275 +1,151 @@
-/* Portfolio interactions: staggered menu, true-focus headline,
-   lazy loop videos and lazy VTurb players. Vanilla JS + GSAP. */
+/* Portfolio interactions: nav, marquee, scroll reveal, render queue,
+   lazy loop videos and lazy VTurb players. Vanilla JS, no dependencies. */
 (function () {
   'use strict';
 
   var VTURB_ACCOUNT = '078ca594-053b-427b-a22f-58f182182f25';
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* ---------------------------------------------------------------- menu */
-  function initStaggeredMenu() {
-    var wrapper = document.querySelector('.staggered-menu-wrapper');
-    if (!wrapper || typeof gsap === 'undefined') return;
+  /* ----------------------------------------------------------------- nav */
+  function initNav() {
+    var button = document.querySelector('.nav-hamburger');
+    var links = document.getElementById('nav-links');
+    if (!button || !links) return;
 
-    var panel = wrapper.querySelector('.staggered-menu-panel');
-    var prelayersHolder = wrapper.querySelector('.sm-prelayers');
-    var prelayers = prelayersHolder
-      ? Array.prototype.slice.call(prelayersHolder.querySelectorAll('.sm-prelayer'))
-      : [];
-    var toggle = wrapper.querySelector('.sm-toggle');
-    var icon = wrapper.querySelector('.sm-icon');
-    var textInner = wrapper.querySelector('.sm-toggle-textInner');
-    var position = wrapper.getAttribute('data-position') === 'left' ? -100 : 100;
-    var menuButtonColor = '#fffef9';
-    var openMenuButtonColor = '#fffef9';
-
-    if (!panel || !icon || !textInner) return;
-
-    var open = false;
-    var openTl = null;
-    var closeTween = null;
-    var iconTween = null;
-    var colorTween = null;
-    var textTween = null;
-
-    gsap.set([panel].concat(prelayers), { xPercent: position, opacity: 1 });
-    gsap.set(icon, { rotate: 0, transformOrigin: '50% 50%' });
-    gsap.set(textInner, { yPercent: 0 });
-    if (prelayersHolder) gsap.set(prelayersHolder, { opacity: 1 });
-    gsap.set(toggle, { color: menuButtonColor });
-
-    function buildOpenTimeline() {
-      if (openTl) openTl.kill();
-      if (closeTween) closeTween.kill();
-
-      var labels = gsap.utils.toArray(panel.querySelectorAll('.sm-panel-itemLabel'));
-      var numbered = gsap.utils.toArray(
-        panel.querySelectorAll('.sm-panel-list[data-numbering] .sm-panel-item')
-      );
-      var kicker = panel.querySelector('.sm-panel-kicker');
-
-      gsap.set(labels, { yPercent: 140, rotate: 8 });
-      gsap.set(numbered, { '--sm-num-opacity': 0 });
-      if (kicker) gsap.set(kicker, { y: 16, opacity: 0 });
-
-      var tl = gsap.timeline({ paused: true });
-
-      prelayers.forEach(function (layer, i) {
-        tl.fromTo(
-          layer,
-          { xPercent: position },
-          { xPercent: 0, duration: 0.5, ease: 'power4.out' },
-          i * 0.07
-        );
-      });
-
-      var panelStart = prelayers.length ? (prelayers.length - 1) * 0.07 + 0.08 : 0;
-      tl.fromTo(
-        panel,
-        { xPercent: position },
-        { xPercent: 0, duration: 0.65, ease: 'power4.out' },
-        panelStart
-      );
-
-      var contentStart = panelStart + 0.1;
-      if (kicker) {
-        tl.to(kicker, { y: 0, opacity: 1, duration: 0.45, ease: 'power3.out' }, contentStart);
-      }
-      tl.to(
-        labels,
-        {
-          yPercent: 0,
-          rotate: 0,
-          duration: 0.82,
-          ease: 'power4.out',
-          stagger: { each: 0.065, from: 'start' }
-        },
-        contentStart + 0.03
-      );
-      tl.to(
-        numbered,
-        {
-          duration: 0.5,
-          ease: 'power2.out',
-          '--sm-num-opacity': 1,
-          stagger: { each: 0.055, from: 'start' }
-        },
-        contentStart + 0.1
-      );
-
-      openTl = tl;
-      return tl;
+    function setOpen(isOpen) {
+      links.classList.toggle('open', isOpen);
+      button.classList.toggle('open', isOpen);
+      button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      button.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+      document.body.style.overflow = isOpen ? 'hidden' : '';
     }
 
-    function animateIcon(isOpen) {
-      if (iconTween) iconTween.kill();
-      iconTween = gsap.to(icon, {
-        rotate: isOpen ? 225 : 0,
-        duration: isOpen ? 0.8 : 0.35,
-        ease: isOpen ? 'power4.out' : 'power3.inOut',
-        overwrite: 'auto'
-      });
-    }
-
-    function animateColor(isOpen) {
-      if (colorTween) colorTween.kill();
-      colorTween = gsap.to(toggle, {
-        color: isOpen ? openMenuButtonColor : menuButtonColor,
-        duration: 0.3,
-        ease: 'power2.out'
-      });
-    }
-
-    function animateText(toOpen) {
-      if (textTween) textTween.kill();
-      var first = toOpen ? 'Menu' : 'Fechar';
-      var second = toOpen ? 'Fechar' : 'Menu';
-      var lines = [first, second, first, second];
-      textInner.innerHTML = '';
-      lines.forEach(function (label) {
-        var span = document.createElement('span');
-        span.className = 'sm-toggle-line';
-        span.textContent = label;
-        textInner.appendChild(span);
-      });
-      gsap.set(textInner, { yPercent: 0 });
-      textTween = gsap.to(textInner, {
-        yPercent: (-(lines.length - 1) / lines.length) * 100,
-        duration: 0.68,
-        ease: 'power4.out'
-      });
-    }
-
-    function playClose() {
-      if (openTl) openTl.kill();
-      if (closeTween) closeTween.kill();
-      closeTween = gsap.to(prelayers.concat([panel]), {
-        xPercent: position,
-        duration: 0.32,
-        ease: 'power3.in',
-        overwrite: 'auto'
-      });
-    }
-
-    function setState(isOpen) {
-      open = isOpen;
-      if (isOpen) wrapper.setAttribute('data-open', '');
-      else wrapper.removeAttribute('data-open');
-      panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      toggle.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
-      panel.querySelectorAll('.sm-panel-item').forEach(function (link) {
-        link.setAttribute('tabindex', isOpen ? '0' : '-1');
-      });
-    }
-
-    function closeMenu(refocus) {
-      if (!open) return;
-      setState(false);
-      playClose();
-      animateIcon(false);
-      animateColor(false);
-      animateText(false);
-      if (refocus) toggle.focus();
-    }
-
-    function openMenu() {
-      setState(true);
-      buildOpenTimeline().play(0);
-      animateIcon(true);
-      animateColor(true);
-      animateText(true);
-    }
-
-    toggle.addEventListener('click', function () {
-      if (open) closeMenu(false);
-      else openMenu();
+    button.addEventListener('click', function () {
+      setOpen(!links.classList.contains('open'));
     });
-
+    links.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () { setOpen(false); });
+    });
     document.addEventListener('keydown', function (event) {
-      if (open && event.key === 'Escape') closeMenu(true);
+      if (event.key === 'Escape') setOpen(false);
     });
-
-    document.addEventListener('mousedown', function (event) {
-      if (!open) return;
-      if (wrapper.contains(event.target)) return;
-      closeMenu(false);
-    });
-
-    panel.querySelectorAll('.sm-panel-item').forEach(function (link) {
-      link.addEventListener('click', function (event) {
-        var href = link.getAttribute('href');
-        closeMenu(false);
-        if (href && href.charAt(0) === '#') {
-          event.preventDefault();
-          var target = document.querySelector(href);
-          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          window.history.replaceState(null, '', href);
-        }
-      });
-    });
-
-    setState(false);
   }
 
-  /* ----------------------------------------------------------- trueFocus */
-  function initTrueFocus() {
-    var container = document.querySelector('.hero-focus');
-    if (!container) return;
+  /* -------------------------------------------------- hero title fit */
+  // Scales the blue line so both title lines share the exact same width.
+  function initTitleFit() {
+    var top = document.querySelector('.h1-white');
+    var bottom = document.querySelector('.h1-blue');
+    if (!top || !bottom) return;
 
-    var words = Array.prototype.slice.call(container.querySelectorAll('[data-focus-word]'));
-    var frame = container.querySelector('[class*="__frame"]');
-    if (!words.length || !frame) return;
-
-    var blurAmount = 1.5;
-    var animationDuration = 0.45;
-    var pauseBetween = 1;
-    var index = 0;
-    var timer = null;
-
-    function paint() {
-      var still = reduceMotion.matches;
-      words.forEach(function (word, i) {
-        var focused = still || i === index;
-        word.style.filter = 'blur(' + (focused ? 0 : blurAmount) + 'px)';
-        word.style.transitionDuration = still ? '0s' : animationDuration + 's';
-      });
-
-      var active = words[index];
-      var box = container.getBoundingClientRect();
-      var target = active.getBoundingClientRect();
-      frame.style.transform =
-        'translate3d(' + (target.left - box.left) + 'px, ' + (target.top - box.top) + 'px, 0)';
-      frame.style.width = target.width + 'px';
-      frame.style.height = target.height + 'px';
-      frame.style.opacity = still ? '0' : '1';
-      frame.style.transitionDuration = still ? '0s' : animationDuration + 's';
+    function fit() {
+      var target = top.getBoundingClientRect().width;
+      var size = parseFloat(bottom.style.fontSize) || 1.3016;
+      for (var i = 0; i < 4; i++) {
+        var current = bottom.getBoundingClientRect().width;
+        if (!target || !current) return;
+        size *= target / current;
+        bottom.style.fontSize = size.toFixed(4) + 'em';
+      }
     }
 
-    function schedule() {
-      if (timer) window.clearInterval(timer);
-      if (reduceMotion.matches || words.length < 2) return;
-      timer = window.setInterval(function () {
-        index = (index + 1) % words.length;
-        paint();
-      }, Math.max(100, (animationDuration + pauseBetween) * 1000));
+    var kicker = document.querySelector('.hero-kicker');
+
+    // Kicker spans the title width. Narrow screens trade letter-spacing for size.
+    function fitKicker() {
+      if (!kicker) return;
+      kicker.classList.add('is-fit');
+      var target = top.getBoundingClientRect().width;
+      if (!target) return;
+      var spacing = 0.3;
+      var size = 0;
+
+      function solve() {
+        kicker.style.setProperty('--ks', spacing + 'em');
+        kicker.style.fontSize = '';
+        size = parseFloat(window.getComputedStyle(kicker).fontSize);
+        for (var i = 0; i < 4; i++) {
+          var perPx = kicker.getBoundingClientRect().width / size - spacing;
+          if (!perPx) return;
+          size = target / perPx;
+          kicker.style.fontSize = size.toFixed(3) + 'px';
+        }
+      }
+
+      solve();
+      if (size < 12) {
+        spacing = 0.06;
+        solve();
+      }
     }
 
-    window.requestAnimationFrame(paint);
-    if ('ResizeObserver' in window) {
-      var ro = new ResizeObserver(paint);
-      ro.observe(container);
-      words.forEach(function (word) {
-        ro.observe(word);
-      });
+    function fitAll() {
+      fit();
+      fitKicker();
     }
-    window.addEventListener('resize', paint);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(paint).catch(function () {});
-    reduceMotion.addEventListener('change', function () {
-      paint();
-      schedule();
+
+    fitAll();
+    window.addEventListener('resize', fitAll);
+    window.addEventListener('load', fitAll);
+    if (document.fonts) {
+      document.fonts.addEventListener('loadingdone', fitAll);
+      if (document.fonts.ready) document.fonts.ready.then(fitAll).catch(function () {});
+    }
+  }
+
+  /* ------------------------------------------------------------- marquee */
+  function initMarquee() {
+    document.querySelectorAll('[data-marquee]').forEach(function (track) {
+      var original = track.innerHTML;
+      track.innerHTML = original + original + original;
     });
-    schedule();
+  }
+
+  /* -------------------------------------------------------------- reveal */
+  function initReveal() {
+    var items = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      items.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    items.forEach(function (el) { observer.observe(el); });
+  }
+
+  /* -------------------------------------------------------- render queue */
+  function initRenderQueue() {
+    var queue = document.querySelector('[data-render-queue]');
+    if (!queue) return;
+    var fills = queue.querySelectorAll('.ps-fill');
+
+    function fill() {
+      fills.forEach(function (bar, i) {
+        window.setTimeout(function () {
+          bar.style.width = bar.getAttribute('data-w') + '%';
+        }, reduceMotion.matches ? 0 : i * 140);
+      });
+    }
+
+    if (!('IntersectionObserver' in window)) return fill();
+    var observer = new IntersectionObserver(
+      function (entries) {
+        if (entries[0].isIntersecting) {
+          fill();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(queue);
   }
 
   /* --------------------------------------------------------- loop videos */
@@ -432,14 +308,95 @@
         },
         { rootMargin: '800px 0px' }
       );
-      observer.observe(host);
+      // An unloaded smartplayer can collapse to 0px, so observe a sized ancestor.
+      // Carousel ads load together once the carousel shows up (off-screen slides never intersect).
+      observer.observe(host.closest('[data-carousel]') || host.closest('.vsl-stage') || host);
+    });
+  }
+
+  /* -------------------------------------------------------- ads carousel */
+  function initAdsCarousel() {
+    document.querySelectorAll('[data-carousel]').forEach(function (carousel) {
+      var track = carousel.querySelector('[data-track]');
+      var prev = carousel.querySelector('.car-prev');
+      var next = carousel.querySelector('.car-next');
+      var dotsHolder = carousel.parentNode.querySelector('[data-dots]');
+      var cards = Array.prototype.slice.call(track.querySelectorAll('.ad-card'));
+      if (!track || !cards.length) return;
+
+      var dots = [];
+
+      // One dot per reachable position (cards minus the ones already in view).
+      function buildDots() {
+        if (!dotsHolder) return;
+        var gap = parseFloat(window.getComputedStyle(track).columnGap) || 0;
+        var visible = Math.max(1, Math.round((track.clientWidth + gap) / (cards[0].getBoundingClientRect().width + gap)));
+        var count = Math.max(1, cards.length - visible + 1);
+        if (dots.length === count) return;
+        dotsHolder.innerHTML = '';
+        dots = [];
+        for (var i = 0; i < count; i++) dots.push(dotsHolder.appendChild(document.createElement('span')));
+      }
+
+      function current() {
+        var left = track.scrollLeft;
+        var best = 0;
+        cards.forEach(function (card, i) {
+          if (Math.abs(card.offsetLeft - track.offsetLeft - left) < Math.abs(cards[best].offsetLeft - track.offsetLeft - left)) best = i;
+        });
+        return best;
+      }
+
+      function goTo(index) {
+        index = Math.max(0, Math.min(cards.length - 1, index));
+        track.scrollTo({ left: cards[index].offsetLeft - track.offsetLeft, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+        window.setTimeout(update, 450);
+      }
+
+      function pauseAll(except) {
+        cards.forEach(function (card) {
+          var video = card.querySelector('video');
+          if (video && card !== except && !video.paused) video.pause();
+        });
+      }
+
+      function update() {
+        var max = track.scrollWidth - track.clientWidth - 2;
+        prev.disabled = track.scrollLeft <= 2;
+        next.disabled = track.scrollLeft >= max;
+        buildDots();
+        var still = track.scrollWidth - track.clientWidth <= 2;
+        carousel.classList.toggle('is-static', still);
+        carousel.parentNode.classList.toggle('is-static', still);
+        var index = track.scrollLeft >= max ? dots.length - 1 : Math.min(current(), dots.length - 1);
+        dots.forEach(function (dot, i) { dot.classList.toggle('is-active', i === index); });
+      }
+
+      prev.addEventListener('click', function () {
+        pauseAll();
+        goTo(current() - 1);
+      });
+      next.addEventListener('click', function () {
+        pauseAll();
+        goTo(current() + 1);
+      });
+      track.addEventListener('scroll', update, { passive: true });
+      track.addEventListener('scrollend', update);
+      window.addEventListener('resize', update);
+
+      // Native videos: starting one pauses the others.
+      cards.forEach(function (card) {
+        var video = card.querySelector('video');
+        if (video) video.addEventListener('play', function () { pauseAll(card); });
+      });
+
+      update();
     });
   }
 
   /* --------------------------------------------------- anchor scrolling */
   function initAnchors() {
     document.querySelectorAll('a[href^="#"]').forEach(function (link) {
-      if (link.closest('.staggered-menu-panel')) return;
       link.addEventListener('click', function (event) {
         var href = link.getAttribute('href');
         if (!href || href === '#') return;
@@ -453,9 +410,13 @@
   }
 
   function start() {
-    initStaggeredMenu();
-    initTrueFocus();
+    initNav();
+    initTitleFit();
+    initMarquee();
+    initReveal();
+    initRenderQueue();
     initLoopVideos();
+    initAdsCarousel();
     initVturbIframes();
     initVturbPlayers();
     initAnchors();
