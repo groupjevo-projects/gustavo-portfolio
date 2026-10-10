@@ -610,3 +610,20 @@ a { color: inherit; }
 .ad-niche-count { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue3); }
 .ads-carousel.is-static .car-btn { display: none; }
 .ad-niche.is-static .car-dots { display: none; }
+
+/* VTurb click-to-play cover */
+.vturb-player-host, .vturb-iframe-host { position: relative; }
+.vt-cover {
+  position: absolute; inset: 0; z-index: 5; border: 0; padding: 0; cursor: pointer;
+  background: #000 center / cover no-repeat;
+  display: flex; align-items: center; justify-content: center;
+}
+.vt-cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5, 8, 16, 0) 45%, rgba(5, 8, 16, 0.55)); transition: background 0.3s; }
+.vt-play {
+  position: relative; z-index: 1; width: 66px; height: 66px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; padding-left: 4px;
+  font-size: 22px; color: #fff; background: linear-gradient(135deg, var(--blue), var(--blue2));
+  box-shadow: 0 0 34px rgba(26, 111, 232, 0.6); transition: transform 0.3s var(--ease), box-shadow 0.3s;
+}
+.vt-cover:hover .vt-play, .vt-cover:focus-visible .vt-play { transform: scale(1.08); box-shadow: 0 0 54px rgba(26, 111, 232, 0.85); }
+.vt-cover:hover::after { background: linear-gradient(180deg, rgba(5, 8, 16, 0.1) 30%, rgba(5, 8, 16, 0.6)); }

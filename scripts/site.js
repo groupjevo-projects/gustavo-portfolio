@@ -212,20 +212,36 @@
     document.head.appendChild(script);
   }
 
+  // Click-to-play cover: nothing loads (or autoplays) until the visitor clicks.
+  function coverUrl(playerId) {
+    return 'https://images.converteai.net/' + VTURB_ACCOUNT + '/players/' + playerId + '/cover.jpg';
+  }
+
+  function addCover(host, playerId, label, onPlay) {
+    var cover = document.createElement('button');
+    cover.type = 'button';
+    cover.className = 'vt-cover';
+    cover.style.backgroundImage = 'url(' + coverUrl(playerId) + ')';
+    cover.setAttribute('aria-label', 'Reproduzir ' + (label || 'vídeo'));
+    cover.innerHTML = '<span class="vt-play" aria-hidden="true">▶</span>';
+    cover.addEventListener('click', function () {
+      cover.remove();
+      onPlay();
+    });
+    host.appendChild(cover);
+  }
+
   function initVturbIframes() {
     document.querySelectorAll('.vturb-iframe-host[data-player-id]').forEach(function (host) {
       var playerId = host.getAttribute('data-player-id');
-      var strategy = host.getAttribute('data-loading') || 'viewport';
       var iframe = host.querySelector('iframe');
-      var button = host.querySelector('.vturb-play-button');
       if (!iframe) return;
 
       iframe.addEventListener('load', function () {
         if (iframe.src !== 'about:blank') iframe.classList.add('is-loaded');
       });
 
-      function load() {
-        if (iframe.src && iframe.src !== 'about:blank') return;
+      addCover(host, playerId, iframe.title, function () {
         loadVturbSdk();
         var query = window.location.search || '?';
         iframe.src =
@@ -237,30 +253,7 @@
           query +
           '&vl=' +
           encodeURIComponent(window.location.href);
-      }
-
-      if (button) {
-        button.addEventListener('click', function () {
-          button.remove();
-          load();
-        });
-        return;
-      }
-
-      if (!('IntersectionObserver' in window)) {
-        load();
-        return;
-      }
-      var observer = new IntersectionObserver(
-        function (entries) {
-          if (entries[0].isIntersecting) {
-            load();
-            observer.disconnect();
-          }
-        },
-        { rootMargin: '500px 0px' }
-      );
-      observer.observe(host);
+      });
     });
   }
 
@@ -270,8 +263,12 @@
       var element = host.querySelector('vturb-smartplayer');
       if (!element) return;
       var playerId = (element.id || '').replace(/^vid-/, '');
-      var poster = element.getAttribute('data-poster');
-      var loaded = false;
+
+      // Lock the host to the video ratio: once the SDK is defined, an unloaded
+      // smartplayer collapses to 0px.
+      var placeholder = host.querySelector('.vturb-player-placeholder');
+      var ratio = placeholder ? parseFloat(placeholder.style.paddingTop || placeholder.style.padding) : 0;
+      if (ratio) host.style.aspectRatio = '100 / ' + ratio;
 
       var mutations = new MutationObserver(function () {
         host.querySelectorAll('img:not([alt])').forEach(function (img) {
@@ -281,11 +278,7 @@
       });
       mutations.observe(host, { childList: true, subtree: true });
 
-      function load() {
-        if (loaded) return;
-        loaded = true;
-        var placeholder = host.querySelector('.vturb-player-placeholder');
-        if (poster && placeholder) placeholder.style.backgroundImage = 'url(' + poster + ')';
+      addCover(host, playerId, host.getAttribute('aria-label'), function () {
         if (document.querySelector('script[data-vturb-player="' + playerId + '"]')) return;
         var script = document.createElement('script');
         script.src =
@@ -293,24 +286,7 @@
         script.async = true;
         script.dataset.vturbPlayer = playerId;
         document.head.appendChild(script);
-      }
-
-      if (!('IntersectionObserver' in window)) {
-        load();
-        return;
-      }
-      var observer = new IntersectionObserver(
-        function (entries) {
-          if (entries[0].isIntersecting) {
-            load();
-            observer.disconnect();
-          }
-        },
-        { rootMargin: '800px 0px' }
-      );
-      // An unloaded smartplayer can collapse to 0px, so observe a sized ancestor.
-      // Carousel ads load together once the carousel shows up (off-screen slides never intersect).
-      observer.observe(host.closest('[data-carousel]') || host.closest('.vsl-stage') || host);
+      });
     });
   }
 
