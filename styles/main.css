@@ -526,27 +526,27 @@ a { color: inherit; }
 }
 
 /* ADS CAROUSEL */
-.ads-carousel { position: relative; }
-.ads-track {
+.clips-carousel { position: relative; }
+.clips-track {
   display: flex; gap: 1.25rem; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
   scrollbar-width: none; padding: 0.25rem 0 0.5rem;
 }
-.ads-track::-webkit-scrollbar { display: none; }
-.ad-card { flex: 0 0 calc((100% - 2 * 1.25rem) / 3); scroll-snap-align: start; border-radius: 18px; }
-.ad-stage {
+.clips-track::-webkit-scrollbar { display: none; }
+.clip-card { flex: 0 0 calc((100% - 2 * 1.25rem) / 3); scroll-snap-align: start; border-radius: 18px; }
+.clip-stage {
   position: relative; aspect-ratio: 9 / 16; background-color: #000;
   background-image: radial-gradient(rgba(122, 143, 176, 0.22) 1px, transparent 1.2px); background-size: 16px 16px;
 }
-.ad-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.ad-play {
+.clip-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.clip-play {
   position: absolute; left: 50%; bottom: 1.5rem; transform: translateX(-50%); z-index: 2; white-space: nowrap;
   display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; border: none;
   background: linear-gradient(135deg, var(--blue), var(--blue2)); color: #fff; padding: 0.85rem 1.7rem; border-radius: 100px;
   font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
   box-shadow: 0 0 30px rgba(26, 111, 232, 0.55); transition: transform 0.2s, box-shadow 0.2s;
 }
-.ad-play:hover { transform: translateX(-50%) scale(1.06); box-shadow: 0 0 50px rgba(26, 111, 232, 0.8); }
-.ad-card.is-playing .ad-play { display: none; }
+.clip-play:hover { transform: translateX(-50%) scale(1.06); box-shadow: 0 0 50px rgba(26, 111, 232, 0.8); }
+.clip-card.is-playing .clip-play { display: none; }
 .car-btn {
   position: absolute; top: 50%; z-index: 3; transform: translateY(-50%);
   width: 52px; height: 52px; border-radius: 50%; cursor: pointer;
@@ -562,11 +562,11 @@ a { color: inherit; }
 .car-dots span { width: 8px; height: 8px; border-radius: 100px; background: rgba(255, 255, 255, 0.18); transition: width 0.3s, background 0.3s; }
 .car-dots span.is-active { width: 26px; background: var(--blue3); box-shadow: 0 0 10px rgba(59, 143, 255, 0.7); }
 @media (max-width: 960px) {
-  .ad-card { flex-basis: calc((100% - 1.25rem) / 2); }
+  .clip-card { flex-basis: calc((100% - 1.25rem) / 2); }
   .car-prev { left: 6px; } .car-next { right: 6px; }
 }
 @media (max-width: 560px) {
-  .ad-card { flex-basis: 82%; }
+  .clip-card { flex-basis: 82%; }
   .car-btn { width: 44px; height: 44px; font-size: 17px; }
 }
 
@@ -604,12 +604,12 @@ a { color: inherit; }
 }
 
 /* ADS por nicho: uma fileira de carrossel por nicho */
-.ad-niche + .ad-niche { margin-top: 4rem; }
-.ad-niche-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--glass-border); }
-.ad-niche-title { font-family: var(--bebas); font-weight: 400; font-size: clamp(2rem, 3.6vw, 2.9rem); letter-spacing: 0.02em; line-height: 1; color: var(--text); }
-.ad-niche-count { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue3); }
-.ads-carousel.is-static .car-btn { display: none; }
-.ad-niche.is-static .car-dots { display: none; }
+.clip-niche + .clip-niche { margin-top: 4rem; }
+.clip-niche-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--glass-border); }
+.clip-niche-title { font-family: var(--bebas); font-weight: 400; font-size: clamp(2rem, 3.6vw, 2.9rem); letter-spacing: 0.02em; line-height: 1; color: var(--text); }
+.clip-niche-count { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue3); }
+.clips-carousel.is-static .car-btn { display: none; }
+.clip-niche.is-static .car-dots { display: none; }
 
 /* VTurb click-to-play cover */
 .vturb-player-host, .vturb-iframe-host { position: relative; }
