@@ -500,6 +500,10 @@ a { color: inherit; }
 .vsl-head { display: flex; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--glass-border); }
 .vsl-head .card-num { font-size: 1.15rem; line-height: 1; padding-top: 1.05rem; }
 .vsl-head .card-kind { display: block; margin-bottom: 0.2rem; }
+/* Ad cards: niche titles share one size and never wrap (sized from the card width). */
+.clip-card { container-type: inline-size; }
+.clip-card .vsl-head > div { min-width: 0; }
+.clip-card .vsl-head h3 { font-size: 8cqi; white-space: nowrap; }
 .vsl-head h3 { font-family: var(--bebas); font-weight: 400; font-size: clamp(2rem, 3vw, 2.6rem); letter-spacing: 0.03em; line-height: 1; }
 .vsl-stage {
   display: flex; justify-content: center; position: relative;
