@@ -297,7 +297,7 @@
       var prev = carousel.querySelector('.car-prev');
       var next = carousel.querySelector('.car-next');
       var dotsHolder = carousel.parentNode.querySelector('[data-dots]');
-      var cards = Array.prototype.slice.call(track.querySelectorAll('.ad-card'));
+      var cards = Array.prototype.slice.call(track.querySelectorAll('.clip-card'));
       if (!track || !cards.length) return;
 
       var dots = [];
